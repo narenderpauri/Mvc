@@ -66,6 +66,8 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure
                 pageContext.ViewData.Model = result.Model;
             }
 
+            OnExecuting(pageContext);
+
             var viewStarts = new IRazorPage[pageContext.ViewStartFactories.Count];
             for (var i = 0; i < pageContext.ViewStartFactories.Count; i++)
             {
@@ -82,6 +84,15 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure
                 _diagnosticSource);
 
             return ExecuteAsync(viewContext, result.ContentType, result.StatusCode);
+        }
+
+        private void OnExecuting(PageContext pageContext)
+        {
+            var feature = pageContext.HttpContext.Features.Get<IPageExecutionCallbackFeature>();
+            if (feature != null)
+            {
+                feature.OnPageExecuting(pageContext);
+            }
         }
     }
 }

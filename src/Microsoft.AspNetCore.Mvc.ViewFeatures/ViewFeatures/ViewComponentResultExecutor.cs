@@ -115,12 +115,23 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
                     writer,
                     _htmlHelperOptions);
 
+                OnExecuting(viewContext);
+
                 // IViewComponentHelper is stateful, we want to make sure to retrieve it every time we need it.
                 var viewComponentHelper = context.HttpContext.RequestServices.GetRequiredService<IViewComponentHelper>();
                 (viewComponentHelper as IViewContextAware)?.Contextualize(viewContext);
 
                 var viewComponentResult = await GetViewComponentResult(viewComponentHelper, _logger, result);
                 viewComponentResult.WriteTo(writer, _htmlEncoder);
+            }
+        }
+
+        private void OnExecuting(ViewContext viewContext)
+        {
+            var callback = viewContext.HttpContext.Features.Get<IViewComponentExecutionCallbackFeature>();
+            if (callback != null)
+            {
+                callback.OnViewComponentExecuting(viewContext);
             }
         }
 
